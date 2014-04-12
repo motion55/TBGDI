@@ -1,0 +1,104 @@
+############################################################################
+#                                                                          #
+#  Makefile for TRaceBack's OrCAD Release IV/386+ VESA VBE 1.2+ Driver     #
+#                                                                          #
+############################################################################
+
+.ERASE
+.SILENT
+
+CC          = wcc
+CFLAGS      = -6 -bt=dos -g=DGROUP -i=$(COMMON_INCLUDE_DIR) &
+	      -i=$(PROJECT_INCLUDE_DIR) -j -ms -nt=_TEXT -ob -oh -ok -ol+ &
+	      -or -os -ox -wx -ze -zlf -zls -zp1 -zq -zu
+AS          = wasm
+AFLAGS      = -bt=dos -ms -wx -zq
+LINK        = wlink
+LFLAGS      = @stub.lnk
+
+############################################################################
+#                                                                          #
+#  Directory Settings                                                      #
+#                                                                          #
+############################################################################
+
+COMMON_SOURCE_DIR   = ..\..\common\src
+COMMON_INCLUDE_DIR  = ..\..\common\include
+
+PROJECT_INCLUDE_DIR = .\include
+PROJECT_SOURCE_DIR  = .\src
+PROJECT_OBJECT_DIR  = .\obj
+PROJECT_BINARY_DIR  = ..\..\..\bin
+
+.c : $(COMMON_SOURCE_DIR);$(PROJECT_SOURCE_DIR)
+.asm : $(COMMON_SOURCE_DIR);$(PROJECT_SOURCE_DIR)
+
+############################################################################
+#                                                                          #
+#  Object Files                                                            #
+#                                                                          #
+############################################################################
+
+# ATTENTION : startup.obj *MUST* remain the first object in the list
+
+OBJS	    = $(PROJECT_OBJECT_DIR)\startup.obj &
+	      $(PROJECT_OBJECT_DIR)\driver.obj &
+	      $(PROJECT_OBJECT_DIR)\memory.obj &
+
+RES_OBJS    = $(PROJECT_OBJECT_DIR)\tbgdi.obj  &
+	      $(PROJECT_OBJECT_DIR)\bt1024.obj 
+
+############################################################################
+#                                                                          #
+#  Targets                                                                 #
+#                                                                          #
+############################################################################
+
+TARGETS	    = $(PROJECT_BINARY_DIR)\tbgdi.drv &
+	      $(PROJECT_BINARY_DIR)\bt1024.drv 
+
+all : $(TARGETS) .SYMBOLIC
+	%null
+
+install : all .SYMBOLIC
+	for %i in ($(TARGETS)) do copy %i $(%ORCADESP)\drv
+
+clean : .SYMBOLIC
+	rm $(OBJS)
+	rm $(RES_OBJS)
+	rm stub.lnk
+#	rm $(TARGETS)
+
+############################################################################
+#                                                                          #
+#  Explicit Rules                                                          #
+#                                                                          #
+############################################################################
+
+$(TARGETS) :: $(OBJS) $(RES_OBJS) stub.lnk
+	*$(LINK) $(LFLAGS) name $^@ option map=$^*.map &
+		libfile $(PROJECT_OBJECT_DIR)\$^&.obj
+
+stub.lnk : makefile
+	%create $^@
+	%append $^@ system dos
+	for %i in ($(OBJS)) do %append $^@ libfile %i
+	%append $^@ option start=start
+	%append $^@ option caseexact
+	%append $^@ option dosseg
+	%append $^@ option quiet
+	%append $^@ disable 1014
+
+############################################################################
+#                                                                          #
+#  Implicit Rules                                                          #
+#                                                                          #
+############################################################################
+
+.c.obj : .AUTODEPEND
+	*$(CC) $(CFLAGS) -fo=$^@ $[@
+
+.asm.obj : .AUTODEPEND
+	*$(AS) $(AFLAGS) -fo=$^@ $[@
+
+############################################################################

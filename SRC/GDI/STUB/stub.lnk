@@ -1,0 +1,9 @@
+system dos
+libfile .\obj\startup.obj
+libfile .\obj\driver.obj
+libfile .\obj\memory.obj
+option start=start
+option caseexact
+option dosseg
+option quiet
+disable 1014

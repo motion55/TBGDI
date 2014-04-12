@@ -1,0 +1,97 @@
+############################################################################
+#                                                                          #
+#  Makefile for TRaceBack's OrCAD Release IV/386+ VESA VBE 1.2+ Driver     #
+#                                                                          #
+############################################################################
+
+.ERASE
+.SILENT
+
+CC          = wcc386
+CFLAGS      = -6 -i=$(COMMON_INCLUDE_DIR) -i=$(PROJECT_INCLUDE_DIR) &
+	-dWINVER=0x500
+LINK        = wlink
+LFLAGS      = @vdd.lnk
+
+############################################################################
+#                                                                          #
+#  Directory Settings                                                      #
+#                                                                          #
+############################################################################
+
+COMMON_SOURCE_DIR   = ..\..\common\src
+COMMON_INCLUDE_DIR  = ..\..\common\include
+
+PROJECT_INCLUDE_DIR = .\include
+PROJECT_SOURCE_DIR  = .\src
+PROJECT_OBJECT_DIR  = .\obj
+PROJECT_BINARY_DIR  = ..\..\..\bin
+PROJECT_LIBRARY_DIR = .\lib
+
+.c : $(COMMON_SOURCE_DIR);$(PROJECT_SOURCE_DIR)
+
+############################################################################
+#                                                                          #
+#  Object Files                                                            #
+#                                                                          #
+############################################################################
+
+OBJS	    = $(PROJECT_OBJECT_DIR)\driver.obj &
+	      $(PROJECT_OBJECT_DIR)\bitmap.obj &
+	      $(PROJECT_OBJECT_DIR)\grid.obj &
+	      $(PROJECT_OBJECT_DIR)\circle.obj &
+	      $(PROJECT_OBJECT_DIR)\cursor.obj &
+	      $(PROJECT_OBJECT_DIR)\font.obj &
+	      $(PROJECT_OBJECT_DIR)\line.obj &
+	      $(PROJECT_OBJECT_DIR)\rectngle.obj &
+	      $(PROJECT_OBJECT_DIR)\state.obj &
+	      $(PROJECT_OBJECT_DIR)\tbgdi.obj &
+	      $(PROJECT_OBJECT_DIR)\text.obj &
+	      $(PROJECT_OBJECT_DIR)\video.obj 
+
+############################################################################
+#                                                                          #
+#  Targets                                                                 #
+#                                                                          #
+############################################################################
+
+TARGETS	    = $(PROJECT_BINARY_DIR)\tbgdi.dll
+
+all : $(TARGETS) .SYMBOLIC
+	%null
+
+install : all .SYMBOLIC
+	for %i in ($(TARGETS)) do copy %i $(%SYSTEMROOT)\SYSTEM32\
+
+clean : .SYMBOLIC
+	rm $(OBJS)
+	rm vdd.lnk
+#	rm $(TARGETS)
+
+############################################################################
+#                                                                          #
+#  Explicit Rules                                                          #
+#                                                                          #
+############################################################################
+
+$(TARGETS) : $(OBJS) vdd.lnk
+	*$(LINK) $(LFLAGS) name $^@ option map=$^*.map
+
+vdd.lnk : makefile
+	%create $^@
+	%append $^@ system nt_dll
+	for %i in ($(OBJS)) do %append $^@ libfile %i
+	%append $^@ library $(PROJECT_LIBRARY_DIR)\ntvdm.lib
+	%append $^@ option caseexact
+	%append $^@ option quiet
+
+############################################################################
+#                                                                          #
+#  Implicit Rules                                                          #
+#                                                                          #
+############################################################################
+
+.c.obj : .AUTODEPEND
+	*$(CC) $(CFLAGS) -fo=$^@ $[@
+
+############################################################################
