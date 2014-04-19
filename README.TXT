@@ -1,3 +1,5 @@
+This is the NTVDM driver for the DOS program Orcad 386.
+
 To install, run the "INSTALL.CMD" script in the BIN directory. This 
 will copy two files (BT1024.DRV & TBGDI.DRV) to Orcad's DRV directory. 
 The location is determined from the environment variable "ORCADESP". 
