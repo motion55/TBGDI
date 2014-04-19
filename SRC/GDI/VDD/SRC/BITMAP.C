@@ -10,8 +10,6 @@
 
 /* -- CODE -------------------------------------------------------------- */
 
-#define	PUTPIXEL(a, b)	SetPixel(hdcMemoryBuffer, a, b, RGBPalette[MapMask]);
-
 static short clipxa, clipya, clipxb, clipyb;
 
 static void ClpPixel(short x, short y)

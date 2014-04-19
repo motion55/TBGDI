@@ -31,6 +31,8 @@ extern int RedrawTimer;
 #define BeginDraw()	WaitForSingleObject(hmMemoryBuffer, INFINITE)
 #define EndDraw()	ReleaseMutex(hmMemoryBuffer)
 
+#define	PUTPIXEL(a, b)	SetPixel(hdcMemoryBuffer, a, b, RGBPalette[MapMask]);
+
 /* -- PUBLIC FUNCTION DECLARATIONS -------------------------------------- */
 
 extern bool InitVideo(unsigned short resX, unsigned short resY);

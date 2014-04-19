@@ -23,8 +23,6 @@ static void DrawVariableCharacter(unsigned char ch,
 
 /* -- CODE -------------------------------------------------------------- */
 
-#define	PUTPIXEL(a, b)	SetPixel(hdcMemoryBuffer, a, b, RGBPalette[MapMask]);
-
 /* ====================================================================== */
 /*                                                                        */
 /*   PrintDriverInfo                                                      */
